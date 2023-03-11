@@ -1,0 +1,16 @@
+if [ $# -eq 0 ]; then
+  echo "Usage: step step_num"
+
+  numSteps=$(git rev-list main | wc -l | grep -oE '\d+')
+  echo "There are $numSteps steps in this tutorial"
+
+  git reset -q --hard
+  git checkout -q main
+else
+  git reset -q --hard
+  git checkout -q $(git rev-list main | tail -n $1 | head -n 1)
+  git log --format=oneline HEAD | head -n1 | sed -E 's/^[[:alnum:]]+ //'
+  if [ $1 -gt 1 ]; then
+    git reset -q --soft HEAD^
+  fi
+fi
