@@ -1,4 +1,5 @@
 const Express = require('express');
+const { isReady } = require('./dependencies');
 
 const app = new Express();
 
@@ -7,7 +8,11 @@ app.get('/healthy', (req, res) => {
 });
 
 app.get('/some-endpoint', (req, res) => {
-  res.send('Hi, from my-service');
+  if(isReady()) {
+    res.send('Hi, from my-service');
+  } else {
+    res.sendStatus(503);
+  }
 });
 
 const port = +(process.env.PORT || 3000);

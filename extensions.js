@@ -23,4 +23,10 @@ async function loopUntil(f, duration) {
   return res;
 }
 
-module.exports = { kill, loopUntil, };
+async function sleep(duration) {
+  return new Promise((res, rej) => {
+    setTimeout(res, duration);
+  });
+}
+
+module.exports = { kill, loopUntil, sleep, };
