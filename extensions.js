@@ -10,4 +10,17 @@ async function kill(childProcess) {
   }
 }
 
-module.exports = { kill, };
+async function loopUntil(f, duration) {
+  let hasTimeoutReached = false;
+  const timeout = setTimeout(() => hasTimeoutReached = true, duration);
+
+  let res = undefined;
+  while (!hasTimeoutReached && !res) {
+    res = await f();
+  }
+
+  clearTimeout(timeout);
+  return res;
+}
+
+module.exports = { kill, loopUntil, };

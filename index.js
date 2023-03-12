@@ -1,6 +1,11 @@
 const Express = require('express');
 
 const app = new Express();
+
+app.get('/healthy', (req, res) => {
+  res.sendStatus(200);
+});
+
 app.get('/some-endpoint', (req, res) => {
   res.send('Hi, from my-service');
 });
