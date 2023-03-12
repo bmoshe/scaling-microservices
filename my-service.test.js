@@ -36,6 +36,18 @@ describe('Testing my-service', () => {
     expect(res.ok).toBeTruthy();
   });
 
+  test('in-flight requests are able to complete while shutting down', async () => {
+    let reqFailedSoFar = false;
+    const req = fetch('http://localhost:3000/some-endpoint')
+        .catch(() => reqFailedSoFar = true);
+
+    await kill(myService);
+
+    expect(reqFailedSoFar).toBeFalsy();
+    const res = await req;
+    expect(res?.ok).toBeTruthy();
+  });
+
   afterAll(async () => {
     await kill(myService);
   });

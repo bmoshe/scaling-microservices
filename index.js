@@ -1,5 +1,6 @@
 const Express = require('express');
 const { isReady } = require('./dependencies');
+const { sleep } = require('./extensions');
 
 const app = new Express();
 
@@ -17,6 +18,7 @@ app.get('/ready', (req, res) => {
 
 app.get('/some-endpoint', async (req, res) => {
   if(isReady()) {
+    await sleep(500);
     res.send('Hi, from my-service');
   } else {
     res.sendStatus(503); // Service Unavailable
