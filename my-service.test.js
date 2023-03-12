@@ -36,6 +36,8 @@ describe('Testing my-service', () => {
     expect(res.ok).toBeTruthy();
   });
 
+  let postSignalRequest = undefined;
+  let postSignalResponse = undefined;
   test('in-flight requests are able to complete while shutting down', async () => {
     let reqFailedSoFar = false;
     const req = fetch('http://localhost:3000/some-endpoint')
@@ -43,9 +45,19 @@ describe('Testing my-service', () => {
 
     await kill(myService);
 
+    postSignalRequest = fetch('http://localhost:3000/some-endpoint')
+      .then(res => postSignalResponse = res)
+      .catch(rej => postSignalResponse = rej);
+
     expect(reqFailedSoFar).toBeFalsy();
     const res = await req;
     expect(res?.ok).toBeTruthy();
+  });
+
+  test('requests received after graceful shutdown are denied', async() => {
+    expect(postSignalRequest).toBeDefined();
+    await postSignalRequest;
+    expect(postSignalResponse?.ok).toBeFalsy();
   });
 
   afterAll(async () => {
