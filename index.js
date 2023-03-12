@@ -1,8 +1,11 @@
 const Express = require('express');
+const { createServer } = require('http');
+const { promisify } = require('util');
 const { isReady } = require('./dependencies');
 const { sleep } = require('./extensions');
 
 const app = new Express();
+const server = createServer(app);
 
 app.get('/healthy', (req, res) => {
   res.sendStatus(200);
@@ -26,4 +29,11 @@ app.get('/some-endpoint', async (req, res) => {
 });
 
 const port = +(process.env.PORT || 3000);
-app.listen(port, () => console.log('I\'m up!'));
+server.listen(port, () => console.log('I\'m up!'));
+
+const serverClose = promisify(server.close.bind(server));
+process.on('SIGTERM', async () => {
+  console.log('ENTER Graceful shutdown');
+  await serverClose();
+  console.log('LEAVE Graceful shutdown');
+});
