@@ -21,6 +21,16 @@ describe('Testing my-service', () => {
     expect(res?.ok).toBeTruthy();
   });
 
+  test(`my-service to become ready within ${maxTimeout}ms`, async() => {
+    let res = await loopUntil(async () => {
+      const res = await fetch('http://localhost:3000/ready');
+      return res.status < 400 ? res : undefined;
+    }, maxTimeout);
+
+    expect(res?.ok).toBeTruthy();
+    expect(res?.status).toBe(200);
+  });
+
   test('my-service is ready to serve', async () => {
     const res = await fetch('http://localhost:3000/some-endpoint');
     expect(res.ok).toBeTruthy();

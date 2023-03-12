@@ -7,11 +7,19 @@ app.get('/healthy', (req, res) => {
   res.sendStatus(200);
 });
 
-app.get('/some-endpoint', (req, res) => {
+app.get('/ready', (req, res) => {
+  if(isReady()) {
+    res.sendStatus(200); // OK
+  } else {
+    res.sendStatus(503); // Service Unavailable
+  }
+});
+
+app.get('/some-endpoint', async (req, res) => {
   if(isReady()) {
     res.send('Hi, from my-service');
   } else {
-    res.sendStatus(503);
+    res.sendStatus(503); // Service Unavailable
   }
 });
 
