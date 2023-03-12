@@ -11,6 +11,15 @@ app.get('/healthy', (req, res) => {
   res.sendStatus(200);
 });
 
+let isGracefullyShuttingDown = false;
+app.use((req, res, next) => {
+  if(isGracefullyShuttingDown) {
+    res.sendStatus(503); // Service Unavailable
+  } else {
+    next();
+  }
+});
+
 app.get('/ready', (req, res) => {
   if(isReady()) {
     res.sendStatus(200); // OK
@@ -34,6 +43,7 @@ server.listen(port, () => console.log('I\'m up!'));
 const serverClose = promisify(server.close.bind(server));
 process.on('SIGTERM', async () => {
   console.log('ENTER Graceful shutdown');
+  isGracefullyShuttingDown = true;
   await serverClose();
   console.log('LEAVE Graceful shutdown');
 });
