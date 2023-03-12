@@ -1,32 +1,8 @@
-const Express = require('express');
-const { createServer } = require('http');
-const { promisify } = require('util');
+const { createGracefulExpress } = require('./graceful-express');
 const { isReady } = require('./dependencies');
 const { sleep } = require('./extensions');
 
-const app = new Express();
-const server = createServer(app);
-
-app.get('/healthy', (req, res) => {
-  res.sendStatus(200);
-});
-
-let isGracefullyShuttingDown = false;
-app.use((req, res, next) => {
-  if(isGracefullyShuttingDown) {
-    res.sendStatus(503); // Service Unavailable
-  } else {
-    next();
-  }
-});
-
-app.get('/ready', (req, res) => {
-  if(isReady()) {
-    res.sendStatus(200); // OK
-  } else {
-    res.sendStatus(503); // Service Unavailable
-  }
-});
+const { app, server, } = createGracefulExpress();
 
 app.get('/some-endpoint', async (req, res) => {
   if(isReady()) {
@@ -39,11 +15,3 @@ app.get('/some-endpoint', async (req, res) => {
 
 const port = +(process.env.PORT || 3000);
 server.listen(port, () => console.log('I\'m up!'));
-
-const serverClose = promisify(server.close.bind(server));
-process.on('SIGTERM', async () => {
-  console.log('ENTER Graceful shutdown');
-  isGracefullyShuttingDown = true;
-  await serverClose();
-  console.log('LEAVE Graceful shutdown');
-});
